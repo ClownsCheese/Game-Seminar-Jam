@@ -4,10 +4,13 @@ using System.Collections;
 [RequireComponent(typeof(AudioSource))]
 public class MicrophoneCapture : MonoBehaviour
 {
+    Animator anim;
     AudioClip microphoneInput;
+    AudioSource audioSource;
     bool microphoneInitialized;
     public float sensitivity;
-    public bool flapped;
+    //public bool flapped;
+    public float speed;
 
     private void Awake()
     {
@@ -16,6 +19,12 @@ public class MicrophoneCapture : MonoBehaviour
             microphoneInput = Microphone.Start(Microphone.devices[0], true, 999, 44100);
             microphoneInitialized = true;
         }
+    }
+
+    private void Start()
+    {
+        anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -38,8 +47,17 @@ public class MicrophoneCapture : MonoBehaviour
         }
         float level = Mathf.Sqrt(Mathf.Sqrt(levelMax));
 
-        Debug.Log(level);
-        transform.Translate(Vector3.up * -level * sensitivity * Time.deltaTime);
+        anim.SetFloat("scream_level", level);
+
+
+        if (level < 0.1f && transform.position.y < 5f)
+        {
+            transform.Translate(Vector3.up * speed * Time.deltaTime);
+        }
+        else if (level > 0.1f && transform.position.y > -3f)
+        {
+            transform.Translate(Vector3.up * -speed * Time.deltaTime);
+        }
         //transform.position = new Vector3(transform.position.x, -level * sensitivity * Time.deltaTime + 5, transform.position.z);
     }
 }
